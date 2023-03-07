@@ -20,6 +20,13 @@ const ETTag = document.getElementById("ET");
  * @param {Uint8Array} fileData The file's data
  * @returns {Uint8Array} the resources bytes from the file
  */
+
+Number.prototype.pad = function(size) {
+    var s = String(this);
+    while (s.length < (size || 2)) {s = "0" + s;}
+    return s;
+}
+
 function getResourcesData(fileData) {
     for (let i = fileData.length - 60; i > 0; i--) {
         const found = [];
@@ -28,6 +35,7 @@ function getResourcesData(fileData) {
             if (11 <= num && num <= 17 && found.every(n => num !== n) && fileData[i + (j * 10) + 1] === 0) found.push(num);
             else break;
         }
+        
         if (found.length === 7) {
             return fileData.slice(i, i + 70);
         }
@@ -42,8 +50,11 @@ function getResourcesData(fileData) {
 function getResources(data) {
     const resources = [0, 0, 0, 0, 0, 0, 0];
     // Puts resources in order
-    for (let i = 6; i < data.length; i += 10) resources[data[i - 6] - 11] = parseInt(data[i + 1].toString(16) + data[i].toString(16), 16) / 8;
+    for (let i = 6; i < data.length; i += 10) {
+        resources[data[i - 6] - 11] = parseInt(data[i + 1].toString(16).padStart(2, '0') + data[i].toString(16).padStart(2, '0'), 16) / 8;
+    }
     return resources;
+    
 }
 
 /**
